@@ -1,286 +1,722 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TradingView Widget Dashboard</title>
-    <link rel="stylesheet" href="style.css" />
-    <script src="https://s3.tradingview.com/tv.js" defer></script>
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"
-      defer
-    ></script>
-    <script src="nasdaqnoncompliance.js" defer></script>
-    <script src="tickers.js" defer></script>
-    <style>
-      #widgets {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-        gap: 10px;
-        margin-top: 20px;
-        max-height: 80vh;
-        overflow-y: auto;
-      }
-      input,
-      button {
-        padding: 10px;
-        margin-right: 10px;
-        font-size: 16px;
-      }
-      button {
-        cursor: pointer;
-      }
-      h1 {
-        text-align: center;
-      }
-      .widget-container {
-        position: relative;
-        padding: 10px;
-      }
-      .close-btn {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        border: none;
-        font-size: 14px;
-        cursor: pointer;
-        border-radius: 50%;
-        width: 24px;
-        height: 24px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 9999;
-      }
-      .button-container {
-        text-align: center;
-        margin-top: 20px;
-      }
-    </style>
-  </head>
-  <body>
-    <nav>
-      <a href="calendar.html">View Calendar</a>
-      <a href="technicalchart.html">View Chart</a>
-      <a href="nasdaqnoncompliance.html">View Nasdaq Noncompliance</a>
-    </nav>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anchor Advisory LLC | Fractional Finance & Data Operations</title>
+<meta name="description" content="Fractional finance and data operations for companies that need reporting they can trust and tools that actually work. Enterprise report reconciliation and small-business financial operations.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-    <h1>My Stock Dashboard</h1>
-
-    <div class="button-container">
-      <button id="showFilteredTickers" onclick="showFilteredTickers()">
-        Show Filtered Tickers
-      </button>
-      <button id="showDefaultTickers" onclick="showDefaultTickers()">
-        Show Default Tickers
-      </button>
-      <!--button onclick="saveTickers()">Save Ticker List</button>
-      <!--button onclick="loadSavedTickers()">Load Saved Ticker List</button>
-      <!--button onclick="fetchAndFilterStocks()">Fetch and Filter Stocks</button>
-      <!-- Added fetch button -->
-    </div>
-
-    <div style="text-align: center">
-      <input type="text" id="newTicker" placeholder="Enter stock ticker" />
-      <button onclick="addTicker()">Add Ticker</button>
-    </div>
-
-    <div id="widgets"></div>
-    <div id="error-message" class="error-message"></div>
-
-    <script>
-      window.onload = function () {
-        console.log("Dashboard page loaded.");
-
-        // Debugging LocalStorage retrieval
-        let storedTickers = localStorage.getItem("filteredTickers");
-        let selectedIndustry = localStorage.getItem("selectedIndustry");
-
-        console.log("Filtered Tickers on Index Page:", storedTickers);
-        console.log("Selected Industry on Index Page:", selectedIndustry);
-
-        if (storedTickers) {
-          try {
-            let parsedTickers = JSON.parse(storedTickers);
-            console.log("Parsed stored tickers:", parsedTickers);
-
-            // Extract ticker symbols from the object array
-            let tickerSymbols = parsedTickers.map((ticker) => ticker.symbol);
-
-            console.log(
-              "Creating widgets for stored ticker symbols:",
-              tickerSymbols
-            );
-
-            paginateWidgets(tickerSymbols); // Paginate tickers instead of loading all at once
-          } catch (error) {
-            console.error("Error parsing stored tickers:", error);
-          }
-        } else {
-          console.log("No stored tickers found, using default.");
-          createWidgets(tickers); // Show default tickers if none are stored
-        }
-      };
-
-      let currentPage = 0;
-const pageSize = 10;
-let fullTickerList = [];
-
-function paginateWidgets(tickerList) {
-  if (!tickerList || tickerList.length === 0) {
-    console.log("No tickers found to paginate.");
-    return;
-  }
-
-  if (currentPage === 0) {
-    fullTickerList = tickerList;
-    document.getElementById("widgets").innerHTML = "";
-  }
-
-  const start = currentPage * pageSize;
-  const end = start + pageSize;
-  const pageTickers = fullTickerList.slice(start, end);
-  currentPage++;
-
-  createWidgets(pageTickers);
-
-  const existingBtn = document.getElementById("loadMoreBtn");
-  if (existingBtn) existingBtn.remove();
-
-  if (end < fullTickerList.length) {
-    const loadMoreBtn = document.createElement("button");
-    loadMoreBtn.textContent = "Load More";
-    loadMoreBtn.id = "loadMoreBtn";
-    loadMoreBtn.onclick = () => paginateWidgets(fullTickerList);
-    document.getElementById("widgets").appendChild(loadMoreBtn);
-  }
+:root {
+  --warm-50: #FAF7F2;
+  --warm-100: #F3EDE3;
+  --warm-200: #E8DFD0;
+  --warm-300: #C4B49A;
+  --warm-400: #A89474;
+  --warm-text: #2C2117;
+  --warm-text-secondary: #6B5B48;
+  --dark-bg: #0E1820;
+  --dark-surface: #15222E;
+  --dark-border: #1F3044;
+  --dark-text: #D1DDE8;
+  --dark-text-muted: #7B93AB;
+  --blue-500: #3D7AB8;
+  --blue-600: #2E6399;
+  --blue-light: #E8F0F8;
+  --blue-text: #1B4A75;
 }
 
+html { scroll-behavior: smooth; }
 
-        if (!tickerList || tickerList.length === 0) {
-          console.log("No tickers found to create widgets.");
-          return;
-        }
+body {
+  font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+  color: var(--warm-text);
+  background: var(--warm-50);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
-        document.getElementById("widgets").innerHTML = "";
-        document.getElementById("error-message").innerHTML = "";
+h1, h2, h3 {
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-weight: 400;
+  line-height: 1.2;
+}
 
-        tickerList.forEach((ticker, index) => {
-          let widgetDiv = document.createElement("div");
-          widgetDiv.className = "widget-container";
-          widgetDiv.id = `widget_${index}`;
+a { text-decoration: none; color: inherit; }
 
-          let closeButton = document.createElement("button");
-          closeButton.className = "close-btn";
-          closeButton.innerHTML = "&times;";
-          closeButton.onclick = function () {
-            removeTicker(index);
-          };
-          widgetDiv.appendChild(closeButton);
+.container {
+  max-width: 1060px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
 
-          document.getElementById("widgets").appendChild(widgetDiv);
+/* ── NAV ── */
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: rgba(250, 247, 242, 0.9);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--warm-200);
+}
 
-          let scriptElement = document.createElement("script");
-          scriptElement.type = "text/javascript";
-          scriptElement.innerHTML = `
-            new TradingView.widget({
-              "width": 400,
-              "height": 300,
-              "symbol": "${ticker}",
-              "interval": "D",
-              "timezone": "Etc/UTC",
-              "theme": "dark",
-              "style": "1",
-              "locale": "en",
-              "toolbar_bg": "#f1f3f6",
-              "enable_publishing": false,
-              "hide_legend": false,
-              "save_image": false,
-              "studies": ["Volume@tv-basicstudies", "RSI@tv-basicstudies"],
-              "container_id": "tradingview_${ticker}"
-            });
-          `;
-          widgetDiv.appendChild(scriptElement);
-        });
-      }
+.nav .container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 60px;
+}
 
-      function showFilteredTickers() {
-        const storedTickers = localStorage.getItem("filteredTickers");
-        if (storedTickers) {
-          const filteredTickers = JSON.parse(storedTickers);
-          createWidgets(filteredTickers);
-        } else {
-          alert("No filtered tickers found.");
-        }
-      }
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
 
-      function showDefaultTickers() {
-        createWidgets(tickers);
-      }
+.nav-logo svg {
+  flex-shrink: 0;
+}
 
-      window.addTicker = function () {
-        const newTicker = document
-          .getElementById("newTicker")
-          .value.toUpperCase();
-        if (newTicker && !tickers.includes(newTicker)) {
-          tickers.push(newTicker);
-          createWidgets(tickers);
-          document.getElementById("newTicker").value = "";
-        } else if (tickers.includes(newTicker)) {
-          alert("Ticker already exists.");
-        } else {
-          alert("Please enter a valid ticker symbol.");
-        }
-      };
+.nav-wordmark {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--warm-text);
+  letter-spacing: 0.3px;
+}
 
-      window.removeTicker = function (index) {
-        tickers.splice(index, 1);
-        createWidgets(tickers);
-      };
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
 
-      // Save the current ticker list to localStorage
-      function saveTickers() {
-        localStorage.setItem("savedTickers", JSON.stringify(tickers));
-        alert("Ticker list saved!");
-      }
+.nav-links a {
+  font-size: 14px;
+  color: var(--warm-text-secondary);
+  transition: color 0.2s;
+}
 
-      // Load saved ticker list from localStorage
-      function loadSavedTickers() {
-        const savedTickers = localStorage.getItem("savedTickers");
-        if (savedTickers) {
-          const tickerList = JSON.parse(savedTickers);
-          createWidgets(tickerList);
-        } else {
-          alert("No saved ticker list found.");
-        }
-      }
+.nav-links a:hover { color: var(--warm-text); }
 
-      // Fetch stock data from the backend and filter based on criteria
-      function fetchAndFilterStocks() {
-        const tickers = "AAPL,MSFT,GOOGL"; // Replace with tickers you want to check
-        fetch(
-          `https://secure-island-42510-64a822da885b.herokuapp.com/api/stocks?symbols=${tickers}`
-        )
-          .then((response) => response.json())
-          .then((data) => {
-            const filteredStocks = filterStocks(data);
-            console.log(filteredStocks); // Display or process the filtered stocks
-            createWidgets(filteredStocks); // Show the filtered stocks as widgets
-          })
-          .catch((error) => console.error("Error fetching stock data:", error));
-      }
+.nav-links .nav-cta {
+  font-size: 13px;
+  font-weight: 500;
+  color: #fff;
+  background: var(--warm-text);
+  padding: 8px 20px;
+  border-radius: 5px;
+  transition: background 0.2s;
+}
 
-      // Function to filter stocks based on price and volume criteria
-      function filterStocks(stocks) {
-        return stocks.filter((stock) => {
-          const price = parseFloat(stock["price"]);
-          const low = parseFloat(stock["52weekLow"]);
-          const volume = parseInt(stock["volume"]);
-          const avgVolume = parseInt(stock["averageVolume"]);
+.nav-links .nav-cta:hover { background: #1a140e; }
 
-          return price < 1 && price > low * 1.1 && volume > avgVolume * 1.2;
-        });
-      }
-    </script>
-  </body>
+/* ── HERO ── */
+.hero {
+  padding: 140px 0 100px;
+  background: var(--warm-50);
+}
+
+.hero-inner {
+  max-width: 620px;
+}
+
+.hero-label {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--blue-500);
+  margin-bottom: 20px;
+}
+
+.hero h1 {
+  font-size: clamp(36px, 5vw, 50px);
+  color: var(--warm-text);
+  margin-bottom: 20px;
+  letter-spacing: -0.3px;
+}
+
+.hero p {
+  font-size: 17px;
+  color: var(--warm-text-secondary);
+  max-width: 500px;
+  margin-bottom: 36px;
+}
+
+.hero-cta {
+  display: inline-block;
+  font-size: 15px;
+  font-weight: 500;
+  color: #fff;
+  background: var(--blue-500);
+  padding: 14px 32px;
+  border-radius: 5px;
+  transition: background 0.2s;
+}
+
+.hero-cta:hover { background: var(--blue-600); }
+
+/* ── PROBLEM STRIP ── */
+.problem-strip {
+  background: var(--warm-100);
+  border-top: 1px solid var(--warm-200);
+  border-bottom: 1px solid var(--warm-200);
+  padding: 40px 0;
+}
+
+.problem-strip .container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 32px;
+}
+
+.problem-item {
+  font-size: 15px;
+  color: var(--warm-text-secondary);
+  padding-left: 16px;
+  border-left: 2px solid var(--warm-300);
+}
+
+.problem-item strong {
+  display: block;
+  font-weight: 500;
+  color: var(--warm-text);
+  margin-bottom: 2px;
+}
+
+/* ── SERVICES (DARK) ── */
+.services {
+  background: var(--dark-bg);
+  padding: 100px 0;
+}
+
+.services-header {
+  margin-bottom: 56px;
+}
+
+.services-header h2 {
+  font-size: clamp(28px, 4vw, 38px);
+  color: #fff;
+  margin-bottom: 16px;
+}
+
+.services-header p {
+  font-size: 16px;
+  color: var(--dark-text-muted);
+  max-width: 520px;
+}
+
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.service-card {
+  background: var(--dark-surface);
+  border: 1px solid var(--dark-border);
+  border-radius: 8px;
+  padding: 32px 28px;
+}
+
+.service-card .card-label {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 3px;
+  margin-bottom: 20px;
+}
+
+.service-card.enterprise .card-label {
+  color: #7BB8E0;
+  background: rgba(61, 122, 184, 0.15);
+}
+
+.service-card.smb .card-label {
+  color: #8BC7AA;
+  background: rgba(93, 178, 140, 0.12);
+}
+
+.service-card h3 {
+  font-size: 22px;
+  color: #fff;
+  margin-bottom: 14px;
+}
+
+.service-card p {
+  font-size: 15px;
+  color: var(--dark-text-muted);
+  margin-bottom: 20px;
+}
+
+.service-card ul {
+  list-style: none;
+}
+
+.service-card ul li {
+  font-size: 14px;
+  color: var(--dark-text);
+  padding: 6px 0;
+  padding-left: 18px;
+  position: relative;
+}
+
+.service-card ul li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 13px;
+  width: 6px;
+  height: 1.5px;
+  background: var(--dark-text-muted);
+}
+
+/* ── HOW IT WORKS ── */
+.how-it-works {
+  background: var(--warm-50);
+  padding: 100px 0;
+}
+
+.how-it-works h2 {
+  font-size: clamp(28px, 4vw, 38px);
+  color: var(--warm-text);
+  margin-bottom: 16px;
+}
+
+.how-it-works > .container > p {
+  font-size: 16px;
+  color: var(--warm-text-secondary);
+  max-width: 480px;
+  margin-bottom: 56px;
+}
+
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 32px;
+  counter-reset: step;
+}
+
+.step {
+  counter-increment: step;
+}
+
+.step::before {
+  content: counter(step, decimal-leading-zero);
+  display: block;
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-size: 32px;
+  color: var(--warm-200);
+  margin-bottom: 12px;
+}
+
+.step h3 {
+  font-size: 18px;
+  color: var(--warm-text);
+  margin-bottom: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+}
+
+.step p {
+  font-size: 14px;
+  color: var(--warm-text-secondary);
+}
+
+/* ── ABOUT ── */
+.about {
+  background: var(--warm-100);
+  border-top: 1px solid var(--warm-200);
+  padding: 100px 0;
+}
+
+.about-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: start;
+}
+
+.about h2 {
+  font-size: clamp(28px, 4vw, 38px);
+  color: var(--warm-text);
+  margin-bottom: 20px;
+}
+
+.about p {
+  font-size: 15px;
+  color: var(--warm-text-secondary);
+  margin-bottom: 16px;
+}
+
+.about-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 32px;
+}
+
+.stat-box {
+  background: var(--warm-50);
+  border-radius: 6px;
+  padding: 20px;
+}
+
+.stat-box .stat-number {
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-size: 22px;
+  color: var(--warm-text);
+  margin-bottom: 2px;
+  line-height: 1.3;
+}
+
+.stat-box .stat-label {
+  font-size: 13px;
+  color: var(--warm-text-secondary);
+}
+
+/* ── CONTACT (DARK) ── */
+.contact {
+  background: var(--dark-bg);
+  padding: 100px 0;
+}
+
+.contact-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: start;
+}
+
+.contact h2 {
+  font-size: clamp(28px, 4vw, 38px);
+  color: #fff;
+  margin-bottom: 16px;
+}
+
+.contact > .container > .contact-inner > div:first-child p {
+  font-size: 16px;
+  color: var(--dark-text-muted);
+  max-width: 400px;
+  margin-bottom: 32px;
+}
+
+.contact-detail {
+  margin-bottom: 20px;
+}
+
+.contact-detail .detail-label {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--dark-text-muted);
+  margin-bottom: 4px;
+}
+
+.contact-detail .detail-value {
+  font-size: 15px;
+  color: var(--dark-text);
+}
+
+.contact-detail .detail-value a {
+  color: #7BB8E0;
+  transition: color 0.2s;
+}
+
+.contact-detail .detail-value a:hover { color: #a5d0f0; }
+
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.contact-form input,
+.contact-form textarea {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  color: var(--dark-text);
+  background: var(--dark-surface);
+  border: 1px solid var(--dark-border);
+  border-radius: 5px;
+  padding: 14px 16px;
+  outline: none;
+  transition: border-color 0.2s;
+  width: 100%;
+}
+
+.contact-form input::placeholder,
+.contact-form textarea::placeholder {
+  color: var(--dark-text-muted);
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus {
+  border-color: var(--blue-500);
+}
+
+.contact-form textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.contact-form button {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  color: #fff;
+  background: var(--blue-500);
+  border: none;
+  border-radius: 5px;
+  padding: 14px 32px;
+  cursor: pointer;
+  transition: background 0.2s;
+  align-self: flex-start;
+}
+
+.contact-form button:hover { background: var(--blue-600); }
+
+/* ── FOOTER ── */
+.footer {
+  background: var(--dark-bg);
+  border-top: 1px solid var(--dark-border);
+  padding: 32px 0;
+}
+
+.footer .container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.footer p {
+  font-size: 13px;
+  color: var(--dark-text-muted);
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .about-inner,
+  .contact-inner {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .nav-links a:not(.nav-cta) {
+    display: none;
+  }
+
+  .hero { padding: 120px 0 72px; }
+  .services, .how-it-works, .about, .contact { padding: 72px 0; }
+}
+
+@media (max-width: 480px) {
+  .about-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .services-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="container">
+    <a href="#" class="nav-logo">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="7" r="2.5" stroke="#2C2117" stroke-width="1.4"/>
+        <line x1="12" y1="9.5" x2="12" y2="20" stroke="#2C2117" stroke-width="1.4"/>
+        <path d="M7 16.5C7 16.5 9 18 12 18C15 18 17 16.5 17 16.5" stroke="#2C2117" stroke-width="1.4" stroke-linecap="round"/>
+        <line x1="8.5" y1="14" x2="15.5" y2="14" stroke="#2C2117" stroke-width="1.4" stroke-linecap="round"/>
+      </svg>
+      <span class="nav-wordmark">Anchor Advisory</span>
+    </a>
+    <div class="nav-links">
+      <a href="#services">Services</a>
+      <a href="#about">About</a>
+      <a href="#contact" class="nav-cta">Get in touch</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-inner">
+      <div class="hero-label">Fractional Finance & Data Operations</div>
+      <h1>Your numbers should tell you the truth.</h1>
+      <p>When your dashboards don't match your GL, or your pricing is based on gut feel instead of a model, the problem isn't your team. It's your financial infrastructure. I fix that.</p>
+      <a href="#contact" class="hero-cta">Start a conversation</a>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM STRIP -->
+<section class="problem-strip">
+  <div class="container">
+    <div class="problem-item">
+      <strong>Reports you can't defend</strong>
+      Leadership asks where a number came from. Nobody knows.
+    </div>
+    <div class="problem-item">
+      <strong>Books that don't reconcile</strong>
+      QuickBooks says one thing. Your bank says another. You stopped checking.
+    </div>
+    <div class="problem-item">
+      <strong>Pricing by instinct</strong>
+      Your margins feel right, but you've never modeled the math.
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section class="services" id="services">
+  <div class="container">
+    <div class="services-header">
+      <h2>Two kinds of companies. One core problem.</h2>
+      <p>Whether you're a 200-person operation or a 10-person shop, the question is the same: can you trust your numbers enough to make decisions from them?</p>
+    </div>
+    <div class="services-grid">
+      <div class="service-card enterprise">
+        <span class="card-label">Enterprise & mid-market</span>
+        <h3>Reporting confidence</h3>
+        <p>Your dashboards should match your financials. When they don't, every board meeting is a liability. I trace the gap, fix the data flow, and build the connective tissue between your reports and your general ledger.</p>
+        <ul>
+          <li>Report-to-GL reconciliation and audit</li>
+          <li>Dashboard validation and data lineage</li>
+          <li>Deferred revenue and waterfall analysis</li>
+          <li>SQL-driven reporting and automation</li>
+        </ul>
+      </div>
+      <div class="service-card smb">
+        <span class="card-label">Small business</span>
+        <h3>Financial infrastructure</h3>
+        <p>You started the business because you're great at what you do, not because you love reconciling accounts. I clean up the books, build the tools, and give you a financial picture you can actually use.</p>
+        <ul>
+          <li>QuickBooks reconciliation and cleanup</li>
+          <li>Custom operating models in Excel or Sheets</li>
+          <li>Recipe costing and pricing analysis</li>
+          <li>Multi-state sales tax compliance</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-it-works">
+  <div class="container">
+    <h2>How an engagement works</h2>
+    <p>No long sales cycles. No 50-page proposals. I scope the work, agree on the deliverable, and get to it.</p>
+    <div class="steps-grid">
+      <div class="step">
+        <h3>Diagnostic call</h3>
+        <p>30 minutes. You walk me through the pain points. I tell you if I can help and what it would look like.</p>
+      </div>
+      <div class="step">
+        <h3>Scope and terms</h3>
+        <p>A short document outlining the work, the timeline, and the monthly retainer. No surprises.</p>
+      </div>
+      <div class="step">
+        <h3>Hands on keyboard</h3>
+        <p>I work inside your systems, not from a slide deck. QuickBooks, your ERP, your spreadsheets. The output is clean data and working tools, not a PDF of recommendations.</p>
+      </div>
+      <div class="step">
+        <h3>Ongoing or offboard</h3>
+        <p>Some clients need a one-time fix. Others want a fractional partner on retainer. Either works.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section class="about" id="about">
+  <div class="container">
+    <div class="about-inner">
+      <div>
+        <h2>Finance background, builder mentality</h2>
+        <p>Anchor Advisory was founded on a simple observation: most businesses don't have a reporting problem or a tools problem. They have a trust problem. The numbers exist, but nobody's confident enough to make decisions from them.</p>
+        <p>I came up through the finance side: early-stage startups where the work was securing lines of credit and supporting private equity raises, then growth-stage operations building revenue recognition models, operating models, pricing frameworks, and multi-state sales tax programs from the ground up. More recently, enterprise environments where the challenge is connecting multiple reporting systems to shared sources so that leadership gets consistent, timely data instead of conflicting spreadsheets.</p>
+        <p>That progression shapes how I work. I'm not an advisor who hands you a deck. I get inside your systems, write the queries, build the models, and deliver infrastructure that holds up after I leave.</p>
+      </div>
+      <div>
+        <div class="about-stats">
+          <div class="stat-box">
+            <div class="stat-number">30+</div>
+            <div class="stat-label">State tax jurisdictions managed</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-number">Startup to enterprise</div>
+            <div class="stat-label">Full-cycle finance experience</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-number">Hands on keyboard</div>
+            <div class="stat-label">SQL, Excel, QuickBooks, ERP</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-number">Seattle</div>
+            <div class="stat-label">Based in Washington</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="contact" id="contact">
+  <div class="container">
+    <div class="contact-inner">
+      <div>
+        <h2>Let's talk about your numbers.</h2>
+        <p>If you're not sure whether this is the right fit, that's fine. The first conversation is free and usually takes 30 minutes. You'll know quickly whether this makes sense.</p>
+        <div class="contact-detail">
+          <div class="detail-label">Email</div>
+          <div class="detail-value"><a href="mailto:adam@anchoradvisory.com">adam@anchoradvisory.com</a></div>
+        </div>
+        <div class="contact-detail">
+          <div class="detail-label">Based in</div>
+          <div class="detail-value">Seattle, Washington</div>
+        </div>
+      </div>
+      <form class="contact-form" action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
+        <input type="text" name="name" placeholder="Your name" required>
+        <input type="email" name="email" placeholder="Email address" required>
+        <input type="text" name="company" placeholder="Company name">
+        <textarea name="message" placeholder="What's going on with your numbers?"></textarea>
+        <button type="submit">Send message</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <p>&copy; 2026 Anchor Advisory LLC. All rights reserved.</p>
+    <p>Seattle, Washington</p>
+  </div>
+</footer>
+
+</body>
 </html>
