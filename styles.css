@@ -13,13 +13,50 @@
   --dark-border: #1F3044;
   --dark-text: #D1DDE8;
   --dark-text-muted: #7B93AB;
-  --blue-500: #3D7AB8;
+  --blue-500: #3572AC;
   --blue-600: #2E6399;
+  --blue-700: #245080;
+  --input-border: #56738F;
+  --focus-light: #2E6399;
+  --focus-dark: #7BB8E0;
   --blue-light: #E8F0F8;
   --blue-text: #1B4A75;
 }
 
 html { scroll-behavior: smooth; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { transition: none !important; }
+}
+
+/* Anchored sections land below the fixed nav */
+[id] { scroll-margin-top: 80px; }
+
+/* Keyboard focus is always visible */
+:focus-visible {
+  outline: 2px solid var(--focus-light);
+  outline-offset: 3px;
+}
+.services :focus-visible,
+.contact :focus-visible,
+.footer :focus-visible {
+  outline-color: var(--focus-dark);
+}
+
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 16px;
+  z-index: 200;
+  padding: 10px 16px;
+  background: var(--warm-text);
+  color: #fff;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: 500;
+}
+.skip-link:focus { top: 12px; }
 
 body {
   font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
@@ -124,7 +161,7 @@ a { text-decoration: none; color: inherit; }
   font-weight: 500;
   letter-spacing: 1.5px;
   text-transform: uppercase;
-  color: var(--blue-500);
+  color: var(--blue-600);
   margin-bottom: 20px;
 }
 
@@ -153,7 +190,7 @@ a { text-decoration: none; color: inherit; }
   transition: background 0.2s;
 }
 
-.hero-cta:hover { background: var(--blue-600); }
+.hero-cta:hover { background: var(--blue-700); }
 
 /* ── PROBLEM STRIP ── */
 .problem-strip {
@@ -296,19 +333,13 @@ a { text-decoration: none; color: inherit; }
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 32px;
-  counter-reset: step;
 }
 
-.step {
-  counter-increment: step;
-}
-
-.step::before {
-  content: counter(step, decimal-leading-zero);
+.step-num {
   display: block;
   font-family: 'DM Serif Display', Georgia, serif;
   font-size: 32px;
-  color: var(--warm-200);
+  color: #968260;
   margin-bottom: 12px;
 }
 
@@ -434,16 +465,32 @@ a { text-decoration: none; color: inherit; }
   gap: 16px;
 }
 
+.contact-form .field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.contact-form label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--dark-text);
+}
+
+.contact-form .form-note {
+  font-size: 13px;
+  color: var(--dark-text-muted);
+}
+
 .contact-form input,
 .contact-form textarea {
   font-family: 'DM Sans', sans-serif;
   font-size: 15px;
   color: var(--dark-text);
   background: var(--dark-surface);
-  border: 1px solid var(--dark-border);
+  border: 1px solid var(--input-border);
   border-radius: 5px;
   padding: 14px 16px;
-  outline: none;
   transition: border-color 0.2s;
   width: 100%;
 }
@@ -453,9 +500,11 @@ a { text-decoration: none; color: inherit; }
   color: var(--dark-text-muted);
 }
 
-.contact-form input:focus,
-.contact-form textarea:focus {
-  border-color: var(--blue-500);
+.contact-form input:focus-visible,
+.contact-form textarea:focus-visible {
+  border-color: var(--focus-dark);
+  outline: 2px solid var(--focus-dark);
+  outline-offset: 2px;
 }
 
 .contact-form textarea {
@@ -477,7 +526,36 @@ a { text-decoration: none; color: inherit; }
   align-self: flex-start;
 }
 
-.contact-form button:hover { background: var(--blue-600); }
+.contact-form button:hover { background: var(--blue-700); }
+
+/* ── ACCESSIBILITY ── */
+.accessibility {
+  background: var(--warm-50);
+  border-top: 1px solid var(--warm-200);
+  padding: 56px 0;
+}
+
+.accessibility h2 {
+  font-size: 22px;
+  color: var(--warm-text);
+  margin-bottom: 12px;
+}
+
+.accessibility p {
+  font-size: 14px;
+  color: var(--warm-text-secondary);
+  max-width: 640px;
+}
+
+.accessibility a {
+  color: var(--blue-600);
+  text-decoration: underline;
+}
+
+.accessibility-date {
+  margin-top: 8px;
+  font-size: 13px;
+}
 
 /* ── FOOTER ── */
 .footer {
@@ -498,6 +576,11 @@ a { text-decoration: none; color: inherit; }
   font-size: 13px;
   color: var(--dark-text-muted);
 }
+
+.footer a {
+  text-decoration: underline;
+}
+.footer a:hover { color: var(--dark-text); }
 
 /* ── RESPONSIVE ── */
 @media (max-width: 768px) {
