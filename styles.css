@@ -382,30 +382,38 @@ a { text-decoration: none; color: inherit; }
   margin-bottom: 16px;
 }
 
-.about-stats {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin-top: 32px;
+.about-cases-heading {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--warm-text-secondary);
+  margin: 8px 0 16px;
 }
 
-.stat-box {
+.about-cases {
+  display: grid;
+  gap: 16px;
+}
+
+.case-box {
   background: var(--warm-50);
   border-radius: 6px;
-  padding: 20px;
+  padding: 22px 24px;
 }
 
-.stat-box .stat-number {
-  font-family: 'DM Serif Display', Georgia, serif;
-  font-size: 22px;
-  color: var(--warm-text);
-  margin-bottom: 2px;
+.case-box h4 {
+  font-family: 'DM Serif Display', serif;
+  font-weight: 400;
+  font-size: 19px;
   line-height: 1.3;
+  color: var(--warm-text);
+  margin-bottom: 10px;
 }
 
-.stat-box .stat-label {
-  font-size: 13px;
-  color: var(--warm-text-secondary);
+.case-box p {
+  margin-bottom: 0;
 }
 
 /* ── CONTACT (DARK) ── */
@@ -599,10 +607,6 @@ a { text-decoration: none; color: inherit; }
 }
 
 @media (max-width: 480px) {
-  .about-stats {
-    grid-template-columns: 1fr;
-  }
-
   .services-grid {
     grid-template-columns: 1fr;
   }
